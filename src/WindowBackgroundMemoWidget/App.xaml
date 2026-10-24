@@ -1,0 +1,19 @@
+<Application x:Class="WindowBackgroundMemoWidget.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             ShutdownMode="OnExplicitShutdown">
+    <Application.Resources>
+        <!--
+        name         : App.Resources
+        desc         : 공통 테마 사전을 모든 화면에 적용한다.
+        author       : NotedexOrig2
+        create date  : 2026-10-23
+        update date  : 2026-10-24 NotedexOrig3 : Dracula 리소스 사전 병합으로 색상 중복 제거.
+        -->
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Themes/Dracula.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

@@ -1,0 +1,26 @@
+# Build outputs and local SDK/runtime caches
+**/bin/
+**/obj/
+artifacts/
+.vs/
+.idea/
+*.user
+*.suo
+/WindowBackgroundMemoWidget.exe
+
+# Personal memo data and diagnostic exports must never enter source control
+*.db
+*.db-shm
+*.db-wal
+*.sqlite*
+/backups/
+/logs/
+# Local/internal project material and generated previews
+/tmp/
+/output/
+/Tasks/
+/Markdown/*
+!/Markdown/USER_MANUAL_NOTES.md
+/Update_History.md
+/OWERORDER.md
+/PROJECT_DEFINITION.md

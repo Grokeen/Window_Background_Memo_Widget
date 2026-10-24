@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">Window Background Memo Widget</title>
+  <desc id="desc">Dracula midnight desktop with a folded page, short text lines, and a pink pin.</desc>
+  <rect x="3.7" y="3.7" width="56.6" height="56.6" rx="14" fill="#282A36" stroke="#44475A" stroke-width="1.4"/>
+  <rect x="16.65" y="10.65" width="30.7" height="42.7" rx="3" fill="#F8F8F2" stroke="#BD93F9" stroke-width="1.3"/>
+  <path d="M39.7 10.5 47 17.3h-7.3z" fill="#BD93F9"/>
+  <path d="M39.4 10.4v7.3h7.6" fill="none" stroke="#BD93F9" stroke-width="1.3" stroke-linejoin="round"/>
+  <path d="m44.5 21.5-4.2 6" fill="none" stroke="#FF79C6" stroke-width="2.4" stroke-linecap="round"/>
+  <circle cx="45.1" cy="16.6" r="3" fill="#FF79C6"/>
+  <path d="M22 32h17M22 38.5h20M22 45h13" fill="none" stroke="#44475A" stroke-width="2.3" stroke-linecap="round"/>
+</svg>

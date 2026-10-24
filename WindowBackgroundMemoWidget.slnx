@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="src/WindowBackgroundMemoWidget/WindowBackgroundMemoWidget.csproj" />
+  <Project Path="tests/WindowBackgroundMemoWidget.Tests/WindowBackgroundMemoWidget.Tests.csproj" />
+</Solution>

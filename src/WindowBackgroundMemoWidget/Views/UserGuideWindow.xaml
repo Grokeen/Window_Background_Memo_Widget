@@ -1,0 +1,83 @@
+<Window x:Class="WindowBackgroundMemoWidget.Views.UserGuideWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Notedex 사용 안내" Background="{DynamicResource BackgroundBrush}"
+        Foreground="{DynamicResource TextBrush}" Width="900" Height="760"
+        MinWidth="360" MinHeight="420" ResizeMode="CanResizeWithGrip"
+        WindowStartupLocation="CenterOwner" Loaded="OnGuideLoaded"
+        SizeChanged="OnGuideSizeChanged" PreviewKeyDown="OnGuidePreviewKeyDown"
+        AutomationProperties.Name="Notedex PDF 사용 안내">
+    <Window.Resources>
+        <SolidColorBrush x:Key="GuideBackgroundBrush" Color="#282A36" />
+        <SolidColorBrush x:Key="GuidePanelBrush" Color="#343746" />
+        <SolidColorBrush x:Key="GuideBorderBrush" Color="#44475A" />
+        <SolidColorBrush x:Key="GuideTextBrush" Color="#F8F8F2" />
+        <SolidColorBrush x:Key="GuideMutedBrush" Color="#C1B4DA" />
+        <SolidColorBrush x:Key="GuideAccentBrush" Color="#BD93F9" />
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource GuidePanelBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource GuideTextBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource GuideBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="18,8" />
+            <Setter Property="MinHeight" Value="38" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+    </Window.Resources>
+    <Grid Background="{StaticResource GuideBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Border Grid.Row="0" Padding="20,16" Background="{StaticResource GuidePanelBrush}"
+                BorderBrush="{StaticResource GuideBorderBrush}" BorderThickness="0,0,0,1">
+            <StackPanel>
+                <TextBlock Text="Notedex 사용 안내" FontSize="20" FontWeight="SemiBold"
+                           Foreground="{StaticResource GuideTextBrush}" />
+                <TextBlock Text="메모를 만들고 정리하는 방법을 PDF 설명서에서 확인하세요."
+                           Margin="0,5,0,0" Foreground="{StaticResource GuideMutedBrush}"
+                           TextWrapping="Wrap" />
+            </StackPanel>
+        </Border>
+        <ScrollViewer x:Name="GuideScroll" Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled" Padding="16,16,16,8"
+                      Background="{StaticResource GuideBackgroundBrush}"
+                      ScrollChanged="OnGuideScrollChanged"
+                      AutomationProperties.Name="사용 안내 페이지">
+            <StackPanel x:Name="PageStack" HorizontalAlignment="Center">
+                <Border x:Name="Page01Host" Margin="0,0,0,16" Padding="1" Background="White"
+                        BorderBrush="{StaticResource GuideBorderBrush}" BorderThickness="1">
+                    <Image x:Name="Page01" Stretch="Uniform" />
+                </Border>
+                <Border x:Name="Page02Host" Margin="0,0,0,16" Padding="1" Background="White"
+                        BorderBrush="{StaticResource GuideBorderBrush}" BorderThickness="1">
+                    <Image x:Name="Page02" Stretch="Uniform" />
+                </Border>
+                <Border x:Name="Page03Host" Margin="0,0,0,16" Padding="1" Background="White"
+                        BorderBrush="{StaticResource GuideBorderBrush}" BorderThickness="1">
+                    <Image x:Name="Page03" Stretch="Uniform" />
+                </Border>
+                <Border x:Name="Page04Host" Margin="0,0,0,16" Padding="1" Background="White"
+                        BorderBrush="{StaticResource GuideBorderBrush}" BorderThickness="1">
+                    <Image x:Name="Page04" Stretch="Uniform" />
+                </Border>
+                <Border x:Name="Page05Host" Margin="0,0,0,4" Padding="1" Background="White"
+                        BorderBrush="{StaticResource GuideBorderBrush}" BorderThickness="1">
+                    <Image x:Name="Page05" Stretch="Uniform" />
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+        <Border Grid.Row="2" Padding="16,10" Background="{StaticResource GuidePanelBrush}"
+                BorderBrush="{StaticResource GuideBorderBrush}" BorderThickness="0,1,0,0">
+            <DockPanel LastChildFill="False">
+                <CheckBox x:Name="DoNotShowAgainCheckBox" DockPanel.Dock="Left"
+                          Content="다시 보지 않기" VerticalAlignment="Center"
+                          Foreground="{StaticResource GuideTextBrush}"
+                          AutomationProperties.Name="다시 보지 않기" />
+                <Button DockPanel.Dock="Right" Content="닫기" IsDefault="True" IsCancel="True"
+                        Click="OnCloseClick" AutomationProperties.Name="사용 안내 닫기" />
+            </DockPanel>
+        </Border>
+    </Grid>
+</Window>

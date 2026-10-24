@@ -1,0 +1,51 @@
+<Window x:Class="WindowBackgroundMemoWidget.Views.MemoWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        Title="임시 메모 · M1" Width="380" Height="340" MinWidth="240" MinHeight="200"
+        Style="{StaticResource AppWindowStyle}" ShowInTaskbar="False" ShowActivated="False" WindowStyle="None" ResizeMode="CanResizeWithGrip"
+        SourceInitialized="OnSourceInitialized" Deactivated="OnDeactivated" Closing="OnClosing">
+    <!--
+    name         : MemoWindow layout
+    desc         : 창 이동·본문 편집·저장 안내를 분리한 임시 메모의 화면 구성.
+    author       : NotedexOrig2
+    create date  : 2026-10-23
+    update date  : 2026-10-24 NotedexOrig3 : 최소 크기 줄바꿈, 편집 포커스와 공통 테마 적용.
+    -->
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="0" ResizeBorderThickness="6" GlassFrameThickness="0" CornerRadius="0" />
+    </shell:WindowChrome.WindowChrome>
+    <Border BorderBrush="{StaticResource ControlBorderBrush}" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+            <!-- 기존 화면 좌표 드래그 이벤트를 유지해 셸 자식 창에서도 이동한다. -->
+            <Border x:Name="MoveArea" Background="{StaticResource PanelBrush}" Padding="14,10" Cursor="SizeAll"
+                    ToolTip="이 영역을 끌어 메모를 이동합니다. 메모 가장자리를 끌면 크기가 바뀝니다."
+                    MouseLeftButtonDown="OnMoveStart" MouseMove="OnMoving" MouseLeftButtonUp="OnMoveEnd" LostMouseCapture="OnMoveCaptureLost">
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                    <TextBlock Style="{StaticResource IconStyle}" Text="&#xE759;" Foreground="{StaticResource AccentBrush}" Margin="0,0,10,0" />
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="임시 메모" FontWeight="SemiBold" />
+                        <TextBlock Text="상단을 끌어 이동" FontSize="11" Foreground="{StaticResource MutedBrush}" Margin="0,2,0,0" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+            <TextBox x:Name="Editor" Grid.Row="1" Style="{StaticResource MemoEditorStyle}"
+                     Text="{Binding MemoText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     AcceptsReturn="True" AcceptsTab="True" TextWrapping="Wrap" MaxLength="10000"
+                     VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                     AutomationProperties.Name="검증용 임시 메모 본문"
+                     AutomationProperties.HelpText="최대 10,000자. Tab은 탭 문자를 입력합니다. 입력 내용은 자동 저장되지 않습니다." />
+            <Border Grid.Row="2" Background="{StaticResource DeepBrush}" Padding="12,8,22,8">
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                    <TextBlock Text="자동 저장 없음" FontSize="11" Foreground="{StaticResource MutedBrush}" />
+                    <TextBlock Grid.Column="1" FontSize="11" Foreground="{StaticResource MutedBrush}" Margin="8,0,0,0">
+                        <Run Text="{Binding CharacterCount, Mode=OneWay}" /><Run Text=" / 10,000자" />
+                    </TextBlock>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

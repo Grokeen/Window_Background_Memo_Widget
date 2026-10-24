@@ -1,0 +1,47 @@
+{
+  "SourcePdf": "output/pdf/Notedex_Notes_User_Manual_KO.pdf",
+  "SourcePdfSHA256": "a427b8e3204097ff043ce965b39aa460a02c4747be06645f4fd7a35628156bb8",
+  "Dpi": 96,
+  "Pages": [
+    {
+      "File": "NotedexManual-Page-01.png",
+      "SHA256": "25318892b743f56930f071702095c7cafd8d45d98c723c3660b029a8c4f9577f",
+      "SizePixels": [
+        794,
+        1123
+      ]
+    },
+    {
+      "File": "NotedexManual-Page-02.png",
+      "SHA256": "2c208ee8ae928c3a5b837d5ab8d11844284d51417062b7ab3ea91067310f1bd0",
+      "SizePixels": [
+        794,
+        1123
+      ]
+    },
+    {
+      "File": "NotedexManual-Page-03.png",
+      "SHA256": "47cd6335e88b4e4bdfe999dd444de1e8098521f5c5d23098df5e1f6dab15520b",
+      "SizePixels": [
+        794,
+        1123
+      ]
+    },
+    {
+      "File": "NotedexManual-Page-04.png",
+      "SHA256": "31959d2823e14e3b3e99cde8fa134e1b5cf8d858c0abcca1cda067d44816567d",
+      "SizePixels": [
+        794,
+        1123
+      ]
+    },
+    {
+      "File": "NotedexManual-Page-05.png",
+      "SHA256": "5b2652245b5fd6161e9e939d6fc4b40f55c47b90fedf472d669b75668ae34606",
+      "SizePixels": [
+        794,
+        1123
+      ]
+    }
+  ]
+}

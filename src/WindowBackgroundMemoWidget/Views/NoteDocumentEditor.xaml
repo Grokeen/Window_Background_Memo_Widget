@@ -1,0 +1,267 @@
+<UserControl x:Class="WindowBackgroundMemoWidget.Views.NoteDocumentEditor"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:markdown="clr-namespace:WindowBackgroundMemoWidget.Services"
+             xmlns:views="clr-namespace:WindowBackgroundMemoWidget.Views"
+             AutomationProperties.Name="메모 시각 편집기">
+    <UserControl.Resources>
+        <!-- 2026-10-24 NotedexOrig3: list continuations retain this hidden marker column to align with item text. -->
+        <Style x:Key="ListMarkerStyle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Consolas" />
+            <Setter Property="Foreground" Value="{StaticResource MutedBrush}" />
+            <Setter Property="MinWidth" Value="26" />
+            <Setter Property="TextAlignment" Value="Right" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+            <Setter Property="Margin" Value="0,5,7,0" />
+            <Setter Property="Focusable" Value="False" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding ListMarker}" Value="">
+                    <Setter Property="Visibility" Value="Hidden" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding ListDepth}" Value="0">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="VisualBlockTextStyle" TargetType="RichTextBox">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+            <Setter Property="FontFamily" Value="Malgun Gothic" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="4,3" />
+            <Setter Property="MinHeight" Value="30" />
+            <Setter Property="VerticalScrollBarVisibility" Value="Disabled" />
+            <Setter Property="IsDocumentEnabled" Value="False" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="CaretBrush" Value="{StaticResource AccentBrush}" />
+            <Setter Property="AutomationProperties.Name" Value="메모 문단 편집" />
+            <Style.Triggers>
+                <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                    <Setter Property="BorderBrush" Value="{StaticResource FocusBrush}" />
+                    <Setter Property="BorderThickness" Value="1" />
+                </Trigger>
+                <DataTrigger Binding="{Binding Kind}" Value="Heading">
+                    <Setter Property="FontSize" Value="{Binding HeadingFontSize, RelativeSource={RelativeSource AncestorType={x:Type views:NoteDocumentEditor}}}" />
+                    <Setter Property="FontWeight" Value="SemiBold" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Kind}" Value="Code">
+                    <Setter Property="FontFamily" Value="Consolas" />
+                    <Setter Property="Background" Value="{StaticResource DeepBrush}" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Kind}" Value="Unsupported">
+                    <Setter Property="IsReadOnly" Value="True" />
+                    <Setter Property="Foreground" Value="{StaticResource MutedBrush}" />
+                    <Setter Property="AutomationProperties.Name" Value="지원하지 않는 Markdown 원문 블록" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="EmptyEditorTextStyle" TargetType="TextBox" BasedOn="{StaticResource MemoEditorStyle}">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="4,3" />
+            <Setter Property="MinHeight" Value="30" />
+            <Setter Property="FontSize" Value="{Binding MemoFontSize, RelativeSource={RelativeSource AncestorType={x:Type views:NoteDocumentEditor}}}" />
+            <Setter Property="AcceptsReturn" Value="True" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="VerticalScrollBarVisibility" Value="Disabled" />
+            <Setter Property="AutomationProperties.Name" Value="새 Markdown 메모 본문 입력" />
+        </Style>
+        <Style x:Key="EditorContextMenuStyle" TargetType="ContextMenu">
+            <Setter Property="Background" Value="{StaticResource PanelBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="4" />
+        </Style>
+        <Style x:Key="EditorMenuItemStyle" TargetType="MenuItem">
+            <Setter Property="Background" Value="{StaticResource PanelBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+            <Setter Property="Padding" Value="10,7" />
+            <Setter Property="MinHeight" Value="34" />
+            <Style.Triggers>
+                <Trigger Property="IsHighlighted" Value="True"><Setter Property="Background" Value="{StaticResource HoverBrush}" /></Trigger>
+                <Trigger Property="IsEnabled" Value="False"><Setter Property="Foreground" Value="{StaticResource MutedBrush}" /></Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="EditorModeButtonStyle" TargetType="RadioButton">
+            <Setter Property="Padding" Value="5,2" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="Foreground" Value="{StaticResource MutedBrush}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="ModeSurface" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="ModeSurface" Property="Background" Value="{StaticResource PanelBrush}" />
+                                <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ModeSurface" Property="Background" Value="{StaticResource HoverBrush}" /></Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="ModeSurface" Property="BorderBrush" Value="{StaticResource FocusBrush}" /><Setter TargetName="ModeSurface" Property="BorderThickness" Value="1" /></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Background="{Binding MemoBackground, RelativeSource={RelativeSource AncestorType={x:Type views:NoteDocumentEditor}}}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <DockPanel Grid.Row="0" Margin="0,0,0,4" LastChildFill="True">
+            <StackPanel x:Name="FormattingToolbar" DockPanel.Dock="Right" Orientation="Horizontal" Margin="6,0,0,0">
+                <StackPanel.Style>
+                    <Style TargetType="StackPanel"><Setter Property="Visibility" Value="Visible" /><Style.Triggers><DataTrigger Binding="{Binding CompactToolbar, RelativeSource={RelativeSource AncestorType={x:Type views:NoteDocumentEditor}}}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger></Style.Triggers></Style>
+                </StackPanel.Style>
+                <Button Content="B" FontWeight="Bold" MinWidth="28" MinHeight="26" Padding="5,1"
+                        IsEnabled="{Binding IsEditable, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                        Tag="bold" Click="OnFormatClick" AutomationProperties.Name="선택 내용을 굵게" ToolTip="굵게" />
+                <Button Content="I" FontStyle="Italic" MinWidth="28" MinHeight="26" Padding="5,1" Margin="2,0,0,0"
+                        IsEnabled="{Binding IsEditable, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                        Tag="italic" Click="OnFormatClick" AutomationProperties.Name="선택 내용을 기울임" ToolTip="기울임" />
+                <Button Content="≡" MinWidth="28" MinHeight="26" Padding="5,1" Margin="2,0,0,0"
+                        IsEnabled="{Binding IsEditable, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                        Tag="bullet" Click="OnFormatClick" AutomationProperties.Name="글머리 목록 삽입" ToolTip="글머리 목록" />
+                <Button Content="☑" MinWidth="28" MinHeight="26" Padding="5,1" Margin="2,0,0,0"
+                        IsEnabled="{Binding IsEditable, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                        Click="OnInsertChecklistClick" AutomationProperties.Name="체크리스트 항목 추가" ToolTip="체크리스트" />
+                <Button Content="⋯" MinWidth="28" MinHeight="26" Padding="5,1" Margin="2,0,0,0"
+                        IsEnabled="{Binding IsEditable, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                        AutomationProperties.Name="본문 서식 도구 더보기" ToolTip="제목 및 들여쓰기 도구">
+                    <Button.ContextMenu>
+                        <ContextMenu Style="{StaticResource EditorContextMenuStyle}">
+                            <MenuItem Style="{StaticResource EditorMenuItemStyle}" Header="제목 전환" Tag="heading" Click="OnFormatClick" />
+                            <Separator />
+                            <MenuItem Style="{StaticResource EditorMenuItemStyle}" Header="들여쓰기" Tag="indent" Click="OnIndentClick" />
+                            <MenuItem Style="{StaticResource EditorMenuItemStyle}" Header="내어쓰기" Tag="outdent" Click="OnIndentClick" />
+                            <Separator />
+                            <MenuItem Style="{StaticResource EditorMenuItemStyle}" Header="시각 편집으로 전환" Click="OnVisualModeClick"
+                                      AutomationProperties.Name="시각 편집 모드" />
+                            <MenuItem Style="{StaticResource EditorMenuItemStyle}" Header="Markdown 원문 편집" Click="OnSourceModeClick"
+                                      AutomationProperties.Name="Markdown 원문 편집 모드" />
+                        </ContextMenu>
+                    </Button.ContextMenu>
+                </Button>
+            </StackPanel>
+            <Button x:Name="CompactToolbarButton" Content="⋯" MinWidth="34" MinHeight="32" Padding="6,3" DockPanel.Dock="Right"
+                    AutomationProperties.Name="위젯 본문 도구 더보기" ToolTip="본문 서식">
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding CompactToolbar, RelativeSource={RelativeSource AncestorType={x:Type views:NoteDocumentEditor}}}" Value="True"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style>
+                </Button.Style>
+                <Button.ContextMenu>
+                    <ContextMenu Style="{StaticResource EditorContextMenuStyle}">
+                        <MenuItem Style="{StaticResource EditorMenuItemStyle}" Header="굵게" Tag="bold" Click="OnFormatClick" />
+                        <MenuItem Style="{StaticResource EditorMenuItemStyle}" Header="기울임" Tag="italic" Click="OnFormatClick" />
+                        <MenuItem Style="{StaticResource EditorMenuItemStyle}" Header="글머리 목록" Tag="bullet" Click="OnFormatClick" />
+                        <MenuItem Style="{StaticResource EditorMenuItemStyle}" Header="체크리스트" Click="OnInsertChecklistClick" />
+                        <Separator />
+                        <MenuItem Style="{StaticResource EditorMenuItemStyle}" Header="제목 전환" Tag="heading" Click="OnFormatClick" />
+                        <MenuItem Style="{StaticResource EditorMenuItemStyle}" Header="들여쓰기" Tag="indent" Click="OnIndentClick" />
+                        <MenuItem Style="{StaticResource EditorMenuItemStyle}" Header="내어쓰기" Tag="outdent" Click="OnIndentClick" />
+                    </ContextMenu>
+                </Button.ContextMenu>
+            </Button>
+            <StackPanel x:Name="EditorModePanel" Orientation="Horizontal" VerticalAlignment="Center" Visibility="Collapsed">
+                <StackPanel.Style>
+                    <Style TargetType="StackPanel"><Setter Property="Visibility" Value="Visible" /><Style.Triggers><DataTrigger Binding="{Binding CompactToolbar, RelativeSource={RelativeSource AncestorType={x:Type views:NoteDocumentEditor}}}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger></Style.Triggers></Style>
+                </StackPanel.Style>
+                <RadioButton x:Name="VisualModeButton" Style="{StaticResource EditorModeButtonStyle}" Content="편집" GroupName="EditorMode" IsChecked="True" Click="OnVisualModeClick"
+                             AutomationProperties.Name="시각 편집 모드" />
+                <RadioButton x:Name="SourceModeButton" Style="{StaticResource EditorModeButtonStyle}" Content="Markdown" GroupName="EditorMode" Margin="4,0,0,0" Visibility="Collapsed"
+                             Click="OnSourceModeClick"
+                             AutomationProperties.Name="Markdown 원문 편집 모드" />
+            </StackPanel>
+        </DockPanel>
+
+        <Grid Grid.Row="1">
+            <ScrollViewer x:Name="VisualScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <Grid>
+                    <ItemsControl x:Name="VisualBlocks" ItemsSource="{Binding Projection}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type markdown:MarkdownVisualBlock}">
+                                <Border x:Name="BlockSurface" Tag="{Binding}" Loaded="OnBlockSurfaceLoaded"
+                                        CornerRadius="4" Padding="4,2" Margin="0,1"
+                                        Background="{Binding MemoBackground, RelativeSource={RelativeSource AncestorType={x:Type views:NoteDocumentEditor}}}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                        <CheckBox x:Name="TaskToggle" Grid.Column="0" IsChecked="{Binding Task.IsChecked, Mode=OneWay}"
+                                                  VerticalAlignment="Top" Margin="2,7,6,0" Click="OnTaskClick"
+                                                  IsEnabled="{Binding IsEditable, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                  AutomationProperties.Name="{Binding Task.Text}"
+                                                  AutomationProperties.HelpText="{Binding Task.IsChecked, StringFormat=완료 상태: {0}}" />
+                                        <TextBlock x:Name="ListMarker" Grid.Column="0" Tag="{Binding}" Text="{Binding ListMarker}"
+                                                   Style="{StaticResource ListMarkerStyle}"
+                                                   AutomationProperties.Name="{Binding ListMarker}"
+                                                   AutomationProperties.HelpText="목록 단계 표시" />
+                                        <RichTextBox x:Name="BlockText" Grid.Column="1" Style="{StaticResource VisualBlockTextStyle}"
+                                                  IsUndoEnabled="False"
+                                                 IsEnabled="{Binding IsEditable, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                 Loaded="OnBlockLoaded" TextChanged="OnBlockTextChanged" GotKeyboardFocus="OnVisualEditorGotFocus"
+                                                 LostKeyboardFocus="OnVisualEditorLostFocus" PreviewKeyDown="OnEditorPreviewKeyDown" />
+                                        <StackPanel x:Name="UnsupportedPanel" Grid.Column="1" Visibility="Collapsed">
+                                            <TextBlock Text="{Binding Text}" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap"
+                                                       Padding="8,4" AutomationProperties.Name="보존된 미지원 Markdown 원문" />
+                                            <Button Content="Markdown 원문에서 열기" HorizontalAlignment="Left" Padding="8,4"
+                                                    Click="OnOpenUnsupportedClick" AutomationProperties.Name="미지원 블록을 원문 모드에서 편집" />
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding Task}" Value="{x:Null}">
+                                        <Setter TargetName="TaskToggle" Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Kind}" Value="Unsupported">
+                                        <Setter TargetName="BlockText" Property="Visibility" Value="Collapsed" />
+                                        <Setter TargetName="UnsupportedPanel" Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBox x:Name="EmptyEditor" Style="{StaticResource EmptyEditorTextStyle}" MaxLength="10000" IsUndoEnabled="False"
+                             Visibility="Collapsed" IsEnabled="{Binding IsEditable, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                             AutomationProperties.Name="새 Markdown 메모 본문 입력"
+                             Loaded="OnEmptyEditorLoaded" TextChanged="OnEmptyTextChanged" PreviewKeyDown="OnEditorPreviewKeyDown" />
+                    <TextBlock x:Name="EmptyHint" Text="내용을 입력하세요" Margin="8,6" Foreground="{StaticResource MutedBrush}"
+                               IsHitTestVisible="False" Visibility="Collapsed" />
+                </Grid>
+            </ScrollViewer>
+
+            <TextBox x:Name="MarkdownSourceEditor" Text="{Binding Source, Mode=OneWay}"
+                     Style="{StaticResource MemoEditorStyle}" FontSize="{Binding MemoFontSize, RelativeSource={RelativeSource AncestorType={x:Type views:NoteDocumentEditor}}}"
+                     Background="{Binding MemoBackground, RelativeSource={RelativeSource AncestorType={x:Type views:NoteDocumentEditor}}}"
+                      AcceptsReturn="True" AcceptsTab="True" TextWrapping="Wrap" MaxLength="10000" IsUndoEnabled="False"
+                     IsEnabled="{Binding IsEditable, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                     VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                     AutomationProperties.Name="Markdown 원문 편집" Visibility="Collapsed"
+                     TextChanged="OnMarkdownSourceChanged" LostKeyboardFocus="OnSourceEditorLostFocus" PreviewKeyDown="OnEditorPreviewKeyDown" />
+        </Grid>
+
+        <Grid Grid.Row="2" Margin="0,8,0,0">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+            <StackPanel>
+                <TextBlock x:Name="EditStatus" Foreground="{StaticResource ErrorBrush}"
+                           TextWrapping="Wrap" AutomationProperties.LiveSetting="Assertive" Visibility="Collapsed" />
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Visibility="Collapsed" x:Name="ConflictActions">
+                <Button Content="외부본 유지" Padding="8,3" Click="OnResolveExternalClick"
+                        AutomationProperties.Name="외부 파일 버전 선택" />
+                <Button Content="내 편집본 복사" Padding="8,3" Margin="6,0,0,0" Click="OnResolveLocalClick"
+                        AutomationProperties.Name="내 편집본을 별도 파일로 보존" />
+            </StackPanel>
+            <Button x:Name="SaveCopyButton" Grid.Column="1" Content="다른 파일로 저장" Padding="8,3"
+                    Visibility="Collapsed" Click="OnSaveCopyClick"
+                    AutomationProperties.Name="현재 편집 내용을 다른 Markdown 파일로 저장" />
+        </Grid>
+    </Grid>
+</UserControl>

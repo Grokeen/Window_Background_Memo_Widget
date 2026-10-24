@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <PlatformTarget>x64</PlatformTarget>
+    <!-- WPF owns startup and manifest DPI. Forms is used only for the tray/monitor API;
+         its ApplicationConfiguration.Initialize entry point is intentionally not used.
+         https://learn.microsoft.com/dotnet/desktop/winforms/compiler-messages/wfo0003 -->
+    <NoWarn>$(NoWarn);WFO0003</NoWarn>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- 2026-10-24 NotedexOrig2: the executable and WPF/tray share Orig3's memo icon. -->
+    <ApplicationIcon>Assets/WindowMemo.ico</ApplicationIcon>
+    <AssemblyName>WindowBackgroundMemoWidget</AssemblyName>
+    <Version>0.3.0</Version>
+    <AssemblyVersion>0.3.0.0</AssemblyVersion>
+    <FileVersion>0.3.0.0</FileVersion>
+    <InformationalVersion>0.3.0+20261024</InformationalVersion>
+    <Description>Notes management internal validation build</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <Resource Include="Assets/WindowMemo.ico" />
+    <Resource Include="Assets/UserGuide/NotedexManual-Page-*.png" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.13" />
+    <PackageReference Include="Markdig" Version="1.4.2" />
+  </ItemGroup>
+</Project>
